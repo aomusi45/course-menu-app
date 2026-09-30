@@ -113,6 +113,15 @@ h1{font-size:28px;text-align:center;margin:5px 0 15px}.page{display:none}.page.a
     </div>
   </div>
 </div>
+<div id="pdfConfirm" class="confirm-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true">
+    <div id="pdfConfirmMessage" class="confirm-message">このコースをPDFにしますか？</div>
+    <div class="confirm-actions">
+      <button type="button" id="pdfCancel" class="confirm-cancel">キャンセル</button>
+      <button type="button" id="pdfOk" class="confirm-delete">PDFにする</button>
+    </div>
+  </div>
+</div>
 <script>
 const foodList=document.getElementById('foodList'),compareTotalBox=document.getElementById('compareTotalBox'),totalsRow=document.getElementById('totalsRow'),customerName=document.getElementById('customerName'),totalPrice=document.getElementById('totalPrice'),savedCourses=document.getElementById('savedCourses'),editingId=document.getElementById('editingId'),backupFile=document.getElementById('backupFile'),compareSelect=document.getElementById('compareSelect'),compareLayout=document.getElementById('compareLayout'),comparePanel=document.getElementById('comparePanel'),compareButton=document.getElementById('compareButton');
 const savedPage=document.getElementById('savedPage'),menuPage=document.getElementById('menuPage'),navSaved=document.getElementById('navSaved'),navMenu=document.getElementById('navMenu'),sortSelect=document.getElementById('sortSelect');
@@ -151,10 +160,50 @@ const d=new Date(v);
 if(isNaN(d.getTime()))return '記録なし';
 return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
-function displaySavedCourses(){let c=getCourses(),s=sortSelect.value,q=(document.getElementById('courseSearch')?.value||'').trim().toLocaleLowerCase('ja');if(q)c=c.filter(x=>{const foods=(x.foods||[]).map(f=>f.name||'').join(' ');const created=formatDateTime(x.createdAt||x.id);const updated=formatDateTime(x.updatedAt||x.createdAt||x.id);return [x.name||'',foods,created,updated].join(' ').toLocaleLowerCase('ja').includes(q)});if(s==='date')c.sort((a,b)=>(b.createdAt||b.id||0)-(a.createdAt||a.id||0));if(s==='name')c.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));if(s==='update')c.sort((a,b)=>(b.updatedAt||b.createdAt||b.id||0)-(a.updatedAt||a.createdAt||a.id||0));savedCourses.innerHTML='';if(!c.length){savedCourses.innerHTML='<div class="empty-message">'+(q?'検索結果がありません。':'保存したコースはありません。')+'</div>';return}c.forEach(x=>{const item=document.createElement('div');item.className='course-item';const main=document.createElement('div');main.className='course-main';const n=document.createElement('div');n.className='course-name';n.textContent=x.name||'名称なし';const t=document.createElement('div');t.className='course-total';t.textContent=Number(x.total||0).toLocaleString()+'円';main.append(n,t);const bs=document.createElement('div');bs.className='course-buttons';[['表示',()=>loadCourse(x.id),'']].forEach(([txt,fn,cl])=>{const b=document.createElement('button');b.type='button';b.className='course-button '+cl;b.textContent=txt;b.onclick=(e)=>{e.preventDefault();e.stopPropagation();fn()};bs.appendChild(b)});const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='course-button delete';delBtn.textContent='削除';delBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();askDeleteCourse(x.id,x.name)};bs.appendChild(delBtn);const dates=document.createElement('div');
+function displaySavedCourses(){let c=getCourses(),s=sortSelect.value,q=(document.getElementById('courseSearch')?.value||'').trim().toLocaleLowerCase('ja');if(q)c=c.filter(x=>{const foods=(x.foods||[]).map(f=>f.name||'').join(' ');const created=formatDateTime(x.createdAt||x.id);const updated=formatDateTime(x.updatedAt||x.createdAt||x.id);return [x.name||'',foods,created,updated].join(' ').toLocaleLowerCase('ja').includes(q)});if(s==='date')c.sort((a,b)=>(b.createdAt||b.id||0)-(a.createdAt||a.id||0));if(s==='name')c.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));if(s==='update')c.sort((a,b)=>(b.updatedAt||b.createdAt||b.id||0)-(a.updatedAt||a.createdAt||a.id||0));savedCourses.innerHTML='';if(!c.length){savedCourses.innerHTML='<div class="empty-message">'+(q?'検索結果がありません。':'保存したコースはありません。')+'</div>';return}c.forEach(x=>{const item=document.createElement('div');item.className='course-item';const main=document.createElement('div');main.className='course-main';const n=document.createElement('div');n.className='course-name';n.textContent=x.name||'名称なし';const t=document.createElement('div');t.className='course-total';t.textContent=Number(x.total||0).toLocaleString()+'円';main.append(n,t);const bs=document.createElement('div');bs.className='course-buttons';[['表示',()=>loadCourse(x.id),'']].forEach(([txt,fn,cl])=>{const b=document.createElement('button');b.type='button';b.className='course-button '+cl;b.textContent=txt;b.onclick=(e)=>{e.preventDefault();e.stopPropagation();fn()};bs.appendChild(b)});
+const pdfBtn=document.createElement('button');pdfBtn.type='button';pdfBtn.className='course-button';pdfBtn.textContent='PDF';pdfBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();askPdfCourse(x.id,x.name)};bs.appendChild(pdfBtn);
+const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='course-button delete';delBtn.textContent='削除';delBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();askDeleteCourse(x.id,x.name)};bs.appendChild(delBtn);const dates=document.createElement('div');
 dates.className='course-dates';
 dates.innerHTML='作成日時：'+formatDateTime(x.createdAt||x.id)+'<br>更新日時：'+formatDateTime(x.updatedAt||x.createdAt||x.id);
 item.append(main,dates,bs);savedCourses.appendChild(item)})}
+
+
+let pendingPdfId=null;
+const pdfConfirm=document.getElementById('pdfConfirm');
+const pdfConfirmMessage=document.getElementById('pdfConfirmMessage');
+
+function askPdfCourse(id,name){
+  pendingPdfId=id;
+  pdfConfirmMessage.textContent='「'+(name||'名称なし')+'」のコースをPDFにしますか？';
+  pdfConfirm.classList.add('show');
+  pdfConfirm.setAttribute('aria-hidden','false');
+}
+function closePdfConfirm(){
+  pendingPdfId=null;
+  pdfConfirm.classList.remove('show');
+  pdfConfirm.setAttribute('aria-hidden','true');
+}
+function escapeHtml(v){
+  return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function createCoursePdf(id){
+  const c=getCourses().find(x=>String(x.id)===String(id));
+  if(!c){showNotice('保存されたコースが見つかりません。');return;}
+  const rows=(c.foods||[]).filter(f=>(f.name||'').trim()||Number(f.price)).map((f,i)=>
+    '<tr><td>'+(i+1)+'</td><td>'+escapeHtml(f.name||'')+'</td><td class="price">'+Number(f.price||0).toLocaleString()+'円</td></tr>'
+  ).join('');
+  const html='<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>'+escapeHtml(c.name||'コースメニュー')+'</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;color:#222;margin:0}h1{text-align:center;font-size:24px;margin:0 0 24px}.name{font-size:20px;font-weight:bold;margin-bottom:16px}table{width:100%;border-collapse:collapse;font-size:16px}th,td{border-bottom:1px solid #bbb;padding:9px 6px;text-align:left}th:first-child,td:first-child{width:42px;text-align:center}.price{text-align:right;white-space:nowrap;width:110px}.total{margin-top:18px;padding:12px 4px;border-top:2px solid #222;border-bottom:2px solid #222;text-align:right;font-size:22px;font-weight:bold}.date{margin-top:12px;text-align:right;color:#666;font-size:12px}</style></head><body><h1>コースメニュー</h1><div class="name">'+escapeHtml(c.name||'名称なし')+' 様</div><table><thead><tr><th>No.</th><th>料理名</th><th class="price">金額</th></tr></thead><tbody>'+rows+'</tbody></table><div class="total">合計 '+Number(c.total||0).toLocaleString()+'円</div><div class="date">作成日時：'+escapeHtml(formatDateTime(c.createdAt||c.id))+'</div><script>window.addEventListener("load",()=>setTimeout(()=>window.print(),200));<\/script></body></html>';
+  const w=window.open('','_blank');
+  if(!w){showNotice('PDF画面を開けませんでした。ポップアップを許可してください。');return;}
+  w.document.open();w.document.write(html);w.document.close();
+}
+document.getElementById('pdfCancel').addEventListener('click',closePdfConfirm);
+document.getElementById('pdfOk').addEventListener('click',()=>{
+  const id=pendingPdfId;
+  closePdfConfirm();
+  if(id!==null)createCoursePdf(id);
+});
+pdfConfirm.addEventListener('click',function(e){if(e.target===this)closePdfConfirm();});
 
 function refreshCompareSelect(){const current=compareSelect.value;compareSelect.innerHTML='<option value="">比較するコースを選択</option>';getCourses().forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=(c.name||'名称なし')+' / '+Number(c.total||0).toLocaleString()+'円';compareSelect.appendChild(o)});if([...compareSelect.options].some(o=>o.value===current))compareSelect.value=current}
 function renderCompare(){const id=Number(compareSelect.value),c=getCourses().find(x=>x.id===id);if(!c){comparePanel.innerHTML='<div class="compare-empty">比較するコースを選んでください。</div>';return}comparePanel.innerHTML='';const name=document.createElement('div');name.className='compare-name';name.textContent=c.name||'名称なし';comparePanel.append(name);(c.foods||[]).forEach(f=>{const r=document.createElement('div');r.className='compare-food';const n=document.createElement('span');n.textContent=f.name||'－';const p=document.createElement('span');p.textContent=(Number(f.price)||0).toLocaleString()+'円';r.append(n,p);comparePanel.appendChild(r)});compareTotalBox.textContent='合計 '+Number(c.total||0).toLocaleString()+'円'}
