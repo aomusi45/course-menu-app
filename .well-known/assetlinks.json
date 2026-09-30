@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "jp.aomusi45.coursemenu",
+        "sha256_cert_fingerprints": ["B7:AB:BA:43:01:D9:C4:D1:89:65:A6:A6:09:66:05:6C:26:08:B7:7D:EB:9E:3C:21:F4:9F:3E:17:57:23:7C:40"]
+      }
+    }]
