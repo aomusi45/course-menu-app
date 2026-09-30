@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>コースメニュー</title>
+<meta name="description" content="コースメニュー管理アプリ">
+<meta name="theme-color" content="#333333">
+<style>
+*{box-sizing:border-box}body{font-family:sans-serif;margin:0;padding:10px;background:#fff;color:#222}.box{max-width:600px;margin:auto}
+h1{font-size:28px;text-align:center;margin:5px 0 15px}.page{display:none}.page.active{display:block}
+.nav{display:flex;gap:5px;margin-bottom:12px}.nav button{flex:1;height:38px;border:1px solid #bbb;border-radius:5px;background:#f5f5f5;font-size:19px}.nav button.active{background:#333;color:#fff;border-color:#333}
+.customer{width:100%;height:40px;padding:8px;margin-bottom:10px;font-size:20px;border:1px solid #ccc;border-radius:4px}
+.food-row{display:flex;align-items:center;gap:5px;margin-bottom:6px}.plus-button{width:25px;min-width:25px;height:25px;padding:0;border:1px solid #bbb;background:#f5f5f5;border-radius:4px;font-size:20px}
+.food-name{flex:1;min-width:0;height:36px;padding:6px;font-size:20px;border:1px solid #ccc;border-radius:4px}.food-price{width:90px;height:36px;padding:6px;font-size:20px;text-align:right;border:1px solid #ccc;border-radius:4px}
+.delete-button{width:30px;min-width:30px;height:36px;padding:0;border:1px solid #ccc;background:#f5f5f5;border-radius:4px;font-size:20px}
+.total-box{margin-top:10px;padding:12px;border-top:2px solid #222;border-bottom:2px solid #222;text-align:right;font-size:28px;font-weight:bold}.totals-row{display:block}.compare-total-box{display:none}.totals-row.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.5fr);gap:8px}.totals-row.active .compare-total-box{display:block}
+.save-area{display:flex;gap:14px;margin-top:12px}.save-button,.new-course-button{height:42px;border:0;border-radius:5px;background:#333;color:#fff;font-size:20px}.save-button{flex:1}.new-course-button{width:100%;margin-bottom:12px}
+.saved-window{border:2px solid #bbb;border-radius:8px;background:#fff;padding:10px;height:min(560px,calc(100dvh - 150px));min-height:430px;overflow-y:auto;box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}.sort-area{display:flex;align-items:center;gap:5px;margin-bottom:10px;position:sticky;top:-10px;background:#fff;padding:6px 0;z-index:2}.sort-label{font-size:16px;white-space:nowrap}#sortSelect{height:34px;padding:2px 5px;border:1px solid #ccc;border-radius:4px;font-size:17px;min-width:0}.search-box{flex:1;min-width:0;height:34px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:17px}
+.course-item{border:1px solid #ddd;border-radius:5px;padding:8px;margin-bottom:6px;background:#fafafa}.course-main{display:flex;align-items:center;gap:6px}.course-name{flex:1;min-width:0;font-size:19px;font-weight:bold;word-break:break-all}.course-total{font-size:18px;white-space:nowrap}
+.course-dates{font-size:14px;color:#888;line-height:1.5;margin-top:4px}.course-buttons{display:flex;gap:4px;margin-top:6px}.course-button{flex:1;height:30px;border:1px solid #ccc;border-radius:4px;background:#fff;font-size:16px}.course-button.delete{color:#222;font-weight:normal}.empty-message{color:#999;font-size:16px;padding:8px 0}
+.menu-window{height:min(650px,calc(100dvh - 190px));min-height:320px;overflow:hidden;overscroll-behavior:contain}.compare-toolbar{display:flex;gap:6px;margin-bottom:10px}.compare-button{height:38px;padding:0 12px;border:1px solid #bbb;border-radius:5px;background:#f5f5f5;font-size:17px}.compare-select{flex:1;min-width:0;height:38px;border:1px solid #bbb;border-radius:5px;background:#fff;font-size:17px;padding:0 6px}.compare-layout{display:block;height:100%}.editor-panel{border:2px solid #bbb;border-radius:8px;background:#fff;padding:10px;min-width:0;height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.compare-layout.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.5fr);gap:8px;align-items:stretch;height:100%}.compare-layout.active .editor-panel{min-width:0}.compare-panel{display:none;border:2px solid #bbb;border-radius:8px;padding:10px;background:#fafafa;min-width:0;height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.compare-layout.active .compare-panel{display:block}.compare-title{font-size:17px;font-weight:bold;text-align:center;margin-bottom:8px}.compare-name{font-size:18px;font-weight:bold;margin-bottom:8px;word-break:break-all}.compare-food{display:flex;justify-content:space-between;gap:6px;border-bottom:1px solid #ddd;padding:6px 0;font-size:16px}.compare-food span:first-child{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.compare-food span:last-child{white-space:nowrap}.compare-total{font-size:20px;font-weight:bold;text-align:right;margin-top:10px}.compare-empty{font-size:15px;color:#888}.compare-layout.active .food-row{gap:3px}.compare-layout.active .plus-button{width:22px;min-width:22px}.compare-layout.active .food-price{width:72px}.compare-layout.active .delete-button{width:26px;min-width:26px}.compare-layout.active .food-name,.compare-layout.active .food-price{font-size:17px}.compare-layout.active .total-box{font-size:22px;padding:9px}.compare-layout.active .save-button{font-size:16px}@media(max-width:420px){.compare-layout.active{gap:5px}.compare-panel{padding:6px}.compare-title{font-size:15px}.compare-name{font-size:16px}.compare-food{font-size:14px}.compare-total{font-size:18px}.compare-layout.active .food-name,.compare-layout.active .food-price{font-size:15px}.compare-layout.active .food-price{width:62px}.compare-layout.active .save-area{gap:3px}.compare-layout.active .save-button{font-size:14px;padding:0 3px}}
+.data-management{margin-top:12px;padding-top:4px;border-top:1px solid #eee;display:flex;align-items:center;gap:5px;height:28px}.data-management-title{font-size:13px;color:#aaa}.data-buttons{display:flex;gap:3px}.data-button{height:20px;padding:0 5px;border:1px solid #ddd;border-radius:2px;background:#f7f7f7;color:#888;font-size:13px}#backupFile{display:none}
+
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.confirm-overlay.show{display:flex}
+.confirm-box{width:min(360px,100%);background:#fff;border-radius:10px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.25);text-align:center}
+.confirm-message{font-size:19px;line-height:1.5;margin-bottom:18px;word-break:break-word}
+.confirm-actions{display:flex;gap:10px}.confirm-actions button{flex:1;height:44px;border-radius:6px;font-size:18px}.confirm-cancel{background:#fff;border:1px solid #bbb}.confirm-delete{background:#333;color:#fff;border:0}
+
+/* コースメニュー画面：文字と合計を小さく */
+#menuPage h1{font-size:18px}
+#menuPage .food-name,#menuPage .food-price{font-size:14px}
+#menuPage .plus-button,#menuPage .delete-button{font-size:14px}
+#menuPage .total-box{font-size:16px;padding:8px}
+#menuPage .menu-actions-row{display:flex;align-items:stretch;gap:6px;margin-top:10px}
+#menuPage .menu-actions-row .save-area{display:flex;gap:45px;margin:0;flex:0 0 auto}
+#menuPage .menu-actions-row .save-button{flex:none;width:86px;height:30px;min-width:86px;padding:4px 6px;font-size:12px;border-radius:4px}
+#menuPage .menu-actions-row .totals-row{flex:1;min-width:0}
+#menuPage .menu-actions-row .total-box{margin-top:0;height:100%}
+#menuPage .menu-actions-row .totals-row.active{display:grid}
+
+/* 金額入力欄を小さく */
+.food-price{width:58px;min-width:58px;}
+
+/* 金額欄：7桁が見やすい幅 */
+.food-price{width:92px;min-width:92px;}
+</style>
+</head>
+<body>
+<div class="box">
+<div class="nav"><button id="navSaved" class="active" onclick="showPage('saved')">保存したコース</button><button id="navMenu" onclick="showPage('menu')">コース作成</button></div>
+
+<section id="savedPage" class="page active">
+<button class="new-course-button" onclick="newCourse()">＋ 新しいコースを作成</button>
+<div class="saved-window">
+<div class="sort-area"><span class="sort-label">並び替え</span><select id="sortSelect" onchange="displaySavedCourses()"><option value="date">作成日時順</option><option value="update">更新日時順</option><option value="name">五十音順</option></select><input id="courseSearch" class="search-box" type="search" placeholder="検索" oninput="displaySavedCourses()"></div>
+<div id="savedCourses"></div>
+</div>
+<div class="data-management"><span class="data-management-title">データ</span><div class="data-buttons"><button class="data-button" onclick="backupData()">バックアップ</button><button class="data-button" onclick="backupFile.click()">復元</button></div><input type="file" id="backupFile" accept=".json,application/json" onchange="restoreData(event)"></div>
+</section>
+
+<section id="menuPage" class="page">
+<div class="compare-toolbar"><select id="compareSelect" class="compare-select"><option value="">比較するコースを選択</option></select><button id="compareButton" class="compare-button" onclick="toggleCompare()">比較</button></div>
+<input id="customerName" class="customer" placeholder="お客様名">
+<div class="menu-window">
+<div id="compareLayout" class="compare-layout">
+<div class="editor-panel">
+<div id="foodList"></div>
+</div>
+<div id="comparePanel" class="compare-panel"></div>
+</div>
+</div>
+<div class="menu-actions-row"><div class="save-area"><button type="button" id="saveCourseButton" class="save-button">保存</button><button type="button" id="overwriteCourseButton" class="save-button">上書き保存</button></div><div id="totalsRow" class="totals-row"><div class="total-box editor-total">合計 <span id="totalPrice">0</span>円</div><div id="compareTotalBox" class="total-box compare-total-box"></div></div></div>
+</section>
+<input type="hidden" id="editingId">
+</div>
+<div id="deleteConfirm" class="confirm-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmMessage">
+    <div id="deleteConfirmMessage" class="confirm-message">このコースを削除しますか？</div>
+    <div class="confirm-actions">
+      <button type="button" id="deleteCancel" class="confirm-cancel">キャンセル</button>
+      <button type="button" id="deleteOk" class="confirm-delete">削除する</button>
+    </div>
+  </div>
+</div>
+<div id="noticeOverlay" class="confirm-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true">
+    <div id="noticeMessage" class="confirm-message">上書き保存しました。</div>
+    <div class="confirm-actions">
+      <button type="button" id="noticeOk" class="confirm-delete">OK</button>
+    </div>
+  </div>
+</div>
+<div id="saveConfirm" class="confirm-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="saveConfirmMessage">
+    <div id="saveConfirmMessage" class="confirm-message">新規保存でいいですか？</div>
+    <div class="confirm-actions">
+      <button type="button" id="saveCancel" class="confirm-cancel">キャンセル</button>
+      <button type="button" id="saveOk" class="confirm-delete">保存する</button>
+    </div>
+  </div>
+</div>
+<div id="overwriteConfirm" class="confirm-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="overwriteConfirmMessage">
+    <div id="overwriteConfirmMessage" class="confirm-message">このコースを上書き保存しますか？</div>
+    <div class="confirm-actions">
+      <button type="button" id="overwriteCancel" class="confirm-cancel">キャンセル</button>
+      <button type="button" id="overwriteOk" class="confirm-delete">上書き保存する</button>
+    </div>
+  </div>
+</div>
+<script>
+const foodList=document.getElementById('foodList'),compareTotalBox=document.getElementById('compareTotalBox'),totalsRow=document.getElementById('totalsRow'),customerName=document.getElementById('customerName'),totalPrice=document.getElementById('totalPrice'),savedCourses=document.getElementById('savedCourses'),editingId=document.getElementById('editingId'),backupFile=document.getElementById('backupFile'),compareSelect=document.getElementById('compareSelect'),compareLayout=document.getElementById('compareLayout'),comparePanel=document.getElementById('comparePanel'),compareButton=document.getElementById('compareButton');
+const savedPage=document.getElementById('savedPage'),menuPage=document.getElementById('menuPage'),navSaved=document.getElementById('navSaved'),navMenu=document.getElementById('navMenu'),sortSelect=document.getElementById('sortSelect');
+function getCourses(){try{return JSON.parse(localStorage.getItem('courseMenuData'))||[]}catch(e){return[]}}
+function showPage(p){savedPage.classList.toggle('active',p==='saved');menuPage.classList.toggle('active',p==='menu');navSaved.classList.toggle('active',p==='saved');navMenu.classList.toggle('active',p==='menu');if(p==='saved')displaySavedCourses()}
+function newCourse(){customerName.value='';editingId.value='';foodList.innerHTML='';addFood();updateTotal();refreshCompareSelect();closeCompare();showPage('menu');scrollTo(0,0)}
+function createFoodRow(name='',price=''){const row=document.createElement('div');row.className='food-row';const plus=document.createElement('button');plus.type='button';plus.className='plus-button';plus.textContent='＋';plus.addEventListener('click',(e)=>{e.preventDefault();const n=createFoodRow();row.after(n);n.querySelector('.food-name').focus()});const ni=document.createElement('input');ni.className='food-name';ni.placeholder='料理名';ni.value=name;const pi=document.createElement('input');pi.type='number';pi.inputMode='numeric';pi.className='food-price';pi.placeholder='金額';pi.value=price;pi.oninput=updateTotal;const del=document.createElement('button');del.type='button';del.className='delete-button';del.textContent='×';del.addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();askDeleteFood(row,ni.value);});[plus,ni,pi,del].forEach(x=>row.appendChild(x));return row}
+function addFood(n='',p=''){const r=createFoodRow(n,p);foodList.appendChild(r);return r}
+function updateTotal(){let t=0;document.querySelectorAll('.food-price').forEach(i=>t+=Number(i.value)||0);totalPrice.textContent=t.toLocaleString()}
+function getFoods(){return [...document.querySelectorAll('.food-row')].map(r=>({name:r.querySelector('.food-name').value,price:r.querySelector('.food-price').value}))}
+function getTotal(){return getFoods().reduce((s,f)=>s+(Number(f.price)||0),0)}
+function doSaveCourse(){const name=customerName.value.trim();if(!name){alert('お客様名を入力してください。');customerName.focus();return}const c=getCourses(),now=Date.now(),course={id:now,name,foods:getFoods(),total:getTotal(),createdAt:now,updatedAt:now};c.push(course);localStorage.setItem('courseMenuData',JSON.stringify(c));editingId.value=String(course.id);alert('保存しました。');refreshCompareSelect();showPage('saved')}
+function saveCourse(){const name=customerName.value.trim();if(!name){alert('お客様名を入力してください。');customerName.focus();return}const m=document.getElementById('saveConfirm');m.classList.add('show');m.setAttribute('aria-hidden','false')}
+function closeSaveConfirm(){const m=document.getElementById('saveConfirm');m.classList.remove('show');m.setAttribute('aria-hidden','true')}
+function overwriteCourse(){const id=Number(editingId.value);if(!id)return alert('上書きするコースを表示してください。');const c=getCourses(),i=c.findIndex(x=>x.id===id);if(i<0)return alert('保存されたコースが見つかりません。');const name=customerName.value.trim();if(!name){alert('お客様名を入力してください。');customerName.focus();return}const m=document.getElementById('overwriteConfirm');m.classList.add('show');m.setAttribute('aria-hidden','false')}
+function closeOverwriteConfirm(){const m=document.getElementById('overwriteConfirm');m.classList.remove('show');m.setAttribute('aria-hidden','true')}
+function doOverwriteCourse(){const id=Number(editingId.value);const c=getCourses(),i=c.findIndex(x=>x.id===id);if(i<0){showNotice('保存されたコースが見つかりません。');return}const name=customerName.value.trim();if(!name){showNotice('お客様名を入力してください。');return}Object.assign(c[i],{name,foods:getFoods(),total:getTotal(),updatedAt:Date.now()});localStorage.setItem('courseMenuData',JSON.stringify(c));refreshCompareSelect();showNotice('上書き保存しました。')}
+function loadCourse(id){const c=getCourses().find(x=>x.id===id);if(!c)return;customerName.value=c.name||'';foodList.innerHTML='';(c.foods?.length?c.foods:[{}]).forEach(f=>addFood(f.name||'',f.price||''));editingId.value=c.id;updateTotal();refreshCompareSelect();closeCompare();showPage('menu');scrollTo(0,0)}
+function deleteCourse(id){const target=String(id);const courses=getCourses();const next=courses.filter(x=>String(x.id)!==target);if(next.length===courses.length){alert('削除するコースが見つかりません。');return false;}localStorage.setItem('courseMenuData',JSON.stringify(next));if(String(editingId.value)===target)editingId.value='';refreshCompareSelect();closeCompare();displaySavedCourses();return true;}
+let pendingDeleteId=null;
+const deleteConfirm=document.getElementById('deleteConfirm');
+const deleteConfirmMessage=document.getElementById('deleteConfirmMessage');
+const deleteCancel=document.getElementById('deleteCancel');
+const deleteOk=document.getElementById('deleteOk');
+function askDeleteCourse(id,name){pendingDeleteId=id;deleteConfirmMessage.textContent='「'+(name||'名称なし')+'」のコースを削除しますか？';deleteConfirm.classList.add('show');deleteConfirm.setAttribute('aria-hidden','false');}
+function closeDeleteConfirm(){pendingDeleteId=null;deleteConfirm.classList.remove('show');deleteConfirm.setAttribute('aria-hidden','true');}
+let pendingFoodRow=null;
+function askDeleteFood(row,name){pendingFoodRow=row;deleteConfirmMessage.textContent='「'+(String(name||'').trim()||'この料理')+'」を削除しますか？';deleteConfirm.classList.add('show');deleteConfirm.setAttribute('aria-hidden','false');}
+function closeAllDeleteConfirm(){pendingDeleteId=null;pendingFoodRow=null;deleteConfirm.classList.remove('show');deleteConfirm.setAttribute('aria-hidden','true');}
+deleteCancel.addEventListener('click',closeAllDeleteConfirm);
+deleteOk.addEventListener('click',()=>{if(pendingFoodRow){const row=pendingFoodRow;closeAllDeleteConfirm();row.remove();if(!foodList.children.length)addFood();updateTotal();return;}if(pendingDeleteId!==null){const id=pendingDeleteId;closeAllDeleteConfirm();deleteCourse(id);return;}closeAllDeleteConfirm();});
+deleteConfirm.addEventListener('click',(e)=>{if(e.target===deleteConfirm)closeAllDeleteConfirm();});
+function formatDateTime(v){
+if(!v)return '記録なし';
+const d=new Date(v);
+if(isNaN(d.getTime()))return '記録なし';
+return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function displaySavedCourses(){let c=getCourses(),s=sortSelect.value,q=(document.getElementById('courseSearch')?.value||'').trim().toLocaleLowerCase('ja');if(q)c=c.filter(x=>{const foods=(x.foods||[]).map(f=>f.name||'').join(' ');const created=formatDateTime(x.createdAt||x.id);const updated=formatDateTime(x.updatedAt||x.createdAt||x.id);return [x.name||'',foods,created,updated].join(' ').toLocaleLowerCase('ja').includes(q)});if(s==='date')c.sort((a,b)=>(b.createdAt||b.id||0)-(a.createdAt||a.id||0));if(s==='name')c.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ja'));if(s==='update')c.sort((a,b)=>(b.updatedAt||b.createdAt||b.id||0)-(a.updatedAt||a.createdAt||a.id||0));savedCourses.innerHTML='';if(!c.length){savedCourses.innerHTML='<div class="empty-message">'+(q?'検索結果がありません。':'保存したコースはありません。')+'</div>';return}c.forEach(x=>{const item=document.createElement('div');item.className='course-item';const main=document.createElement('div');main.className='course-main';const n=document.createElement('div');n.className='course-name';n.textContent=x.name||'名称なし';const t=document.createElement('div');t.className='course-total';t.textContent=Number(x.total||0).toLocaleString()+'円';main.append(n,t);const bs=document.createElement('div');bs.className='course-buttons';[['表示',()=>loadCourse(x.id),'']].forEach(([txt,fn,cl])=>{const b=document.createElement('button');b.type='button';b.className='course-button '+cl;b.textContent=txt;b.onclick=(e)=>{e.preventDefault();e.stopPropagation();fn()};bs.appendChild(b)});const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='course-button delete';delBtn.textContent='削除';delBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();askDeleteCourse(x.id,x.name)};bs.appendChild(delBtn);const dates=document.createElement('div');
+dates.className='course-dates';
+dates.innerHTML='作成日時：'+formatDateTime(x.createdAt||x.id)+'<br>更新日時：'+formatDateTime(x.updatedAt||x.createdAt||x.id);
+item.append(main,dates,bs);savedCourses.appendChild(item)})}
+
+function refreshCompareSelect(){const current=compareSelect.value;compareSelect.innerHTML='<option value="">比較するコースを選択</option>';getCourses().forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=(c.name||'名称なし')+' / '+Number(c.total||0).toLocaleString()+'円';compareSelect.appendChild(o)});if([...compareSelect.options].some(o=>o.value===current))compareSelect.value=current}
+function renderCompare(){const id=Number(compareSelect.value),c=getCourses().find(x=>x.id===id);if(!c){comparePanel.innerHTML='<div class="compare-empty">比較するコースを選んでください。</div>';return}comparePanel.innerHTML='';const name=document.createElement('div');name.className='compare-name';name.textContent=c.name||'名称なし';comparePanel.append(name);(c.foods||[]).forEach(f=>{const r=document.createElement('div');r.className='compare-food';const n=document.createElement('span');n.textContent=f.name||'－';const p=document.createElement('span');p.textContent=(Number(f.price)||0).toLocaleString()+'円';r.append(n,p);comparePanel.appendChild(r)});compareTotalBox.textContent='合計 '+Number(c.total||0).toLocaleString()+'円'}
+function toggleCompare(){if(compareLayout.classList.contains('active')){closeCompare();return}if(!compareSelect.value)return alert('比較するコースを選んでください。');renderCompare();compareLayout.classList.add('active');totalsRow.classList.add('active');compareButton.textContent='比較終了'}
+function closeCompare(){compareLayout.classList.remove('active');totalsRow.classList.remove('active');compareTotalBox.textContent='';compareButton.textContent='比較'}
+compareSelect.addEventListener('change',()=>{if(compareLayout.classList.contains('active'))renderCompare()});
+function backupData(){const c=getCourses();if(!c.length)return alert('バックアップする保存データがありません。');const data={appName:'コースメニュー',version:1,backupDate:new Date().toISOString(),courses:c},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a'),d=new Date();a.href=u;a.download=`コースメニュー_バックアップ_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(u)}
+function restoreData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=x=>{try{const b=JSON.parse(x.target.result);if(!Array.isArray(b.courses))throw 0;if(confirm('現在保存されているコースデータを、バックアップデータで置き換えますか？')){localStorage.setItem('courseMenuData',JSON.stringify(b.courses));editingId.value='';displaySavedCourses();alert('データを復元しました。')}}catch(_){alert('バックアップファイルを読み込めませんでした。')}e.target.value=''};r.readAsText(f)}
+function showNotice(message){const overlay=document.getElementById('noticeOverlay'),msg=document.getElementById('noticeMessage');msg.textContent=message;overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');}
+function closeNotice(){const overlay=document.getElementById('noticeOverlay');overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
+document.getElementById('noticeOk').addEventListener('click',closeNotice);
+document.getElementById('noticeOverlay').addEventListener('click',function(e){if(e.target===this)closeNotice();});
+const saveCourseButton=document.getElementById('saveCourseButton');
+const overwriteCourseButton=document.getElementById('overwriteCourseButton');
+saveCourseButton.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();saveCourse();});
+overwriteCourseButton.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();overwriteCourse();});
+document.getElementById('saveCancel').addEventListener('click',function(){closeSaveConfirm();});
+document.getElementById('saveOk').addEventListener('click',function(){closeSaveConfirm();doSaveCourse();});
+document.getElementById('saveConfirm').addEventListener('click',function(e){if(e.target===this)closeSaveConfirm();});
+document.getElementById('overwriteCancel').addEventListener('click',function(){closeOverwriteConfirm();});
+document.getElementById('overwriteOk').addEventListener('click',function(){closeOverwriteConfirm();doOverwriteCourse();});
+document.getElementById('overwriteConfirm').addEventListener('click',function(e){if(e.target===this)closeOverwriteConfirm();});
+addFood();updateTotal();displaySavedCourses();refreshCompareSelect();
+</script>
+</body></html>
